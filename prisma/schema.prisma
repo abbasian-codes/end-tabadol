@@ -21,3 +21,10 @@ model User {
   password  String   // ← اینجا اضافه شد، الزامی است
   createdAt DateTime @default(now())
 }
+model PasswordReset {
+  id        Int      @id @default(autoincrement())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
