@@ -5,24 +5,40 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 
 export default function JoinPage() {
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
+  // const [name, setName] = useState("")
+  // const [email, setEmail] = useState("")
+  // const [username, setUsername] = useState("")
+  // const [password, setPassword] = useState("")
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    username: "",
+    password: "",
+  })
   const [message, setMessage] = useState("")
-
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
   async function handleSubmit(e) {
     e.preventDefault()
+    setMessage("") // پاک کردن پیام قبلی
+    try {
+      // ارسال اطلاعات به API
+      const res = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
 
-    // ارسال اطلاعات به API
-    const res = await fetch("/api/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, username, password }),
-    })
+      const data = await res.json()
 
-    const data = await res.json()
-    setMessage(data.message)
+      if (!res.ok) throw new Error(data.error || "خطایی رخ داد")
+
+      setMessage(data.message) // پیام موفقیت
+      setFormData({ name: "", email: "", username: "", password: "" }) // پاک کردن فرم
+    } catch (err) {
+      setMessage(err.message)
+    }
   }
 
   return (
@@ -37,33 +53,38 @@ export default function JoinPage() {
             <input
               type="text"
               placeholder="نام"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              name="name" // اضافه کردن name برای handleChange
+              value={formData.name} // استفاده از formData
+              onChange={handleChange} // تابع مشترک handleChange
               className="w-full border border-gray-300 p-2 rounded"
               required
             />
             <input
               type="email"
               placeholder="ایمیل"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
               className="w-full border border-gray-300 p-2 rounded"
               required
             />
             <input
               type="text"
               placeholder="نام کاربری (اختیاری)"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
               className="w-full border border-gray-300 p-2 rounded"
             />
             <input
-              type="text"
+              type="password"
               placeholder="پسورد ( الزامی) "
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
               className="w-full border border-gray-300 p-2 rounded"
             />
+
             <button
               type="submit"
               className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition"
