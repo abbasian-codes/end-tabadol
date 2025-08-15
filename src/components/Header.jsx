@@ -2,10 +2,10 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
-// import { useRouter } from "next/router"
 import { useRouter } from "next/navigation"
 import Logo from "./Logo"
 import { Search, Menu, X } from "lucide-react"
+import { useAuth } from "@/context/AuthContext"
 
 export default function Header({
   alwaysWhite = false,
@@ -14,8 +14,10 @@ export default function Header({
 }) {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [user, setUser] = useState(null)
   const router = useRouter()
+
+  // فقط داخل کامپوننت
+  const { user, logout } = useAuth()
 
   useEffect(() => {
     if (alwaysWhite) return
@@ -25,10 +27,10 @@ export default function Header({
   }, [alwaysWhite])
 
   async function handleLogout() {
-    await supabase.auth.signOut()
-    setUser(null)
+    await logout() // فرض بر این که در context logout تعریف شده
     router.push("/")
   }
+
   return (
     <header
       className={`fixed top-0 w-full min-h-16 z-50 transition-all duration-300 ${
@@ -53,15 +55,7 @@ export default function Header({
           {user ? (
             <>
               <div className="flex items-center gap-3">
-                <img
-                  src={user.user_metadata?.avatar_url || "/default-avatar.png"}
-                  alt="User Avatar"
-                  onError={(e) => {
-                    e.currentTarget.src = "/default-avatar.png"
-                  }}
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-                <span>{user.email}</span>
+                <span>سلام، {user.username || user.name}!</span>
                 <Link
                   href="/dashboard"
                   className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
@@ -81,7 +75,7 @@ export default function Header({
               <Link href="/login" className="px-3 py-1">
                 ورود
               </Link>
-              <Link href="/join" className="px-3 py-1">
+              <Link href="/signup" className="px-3 py-1">
                 ثبت‌نام
               </Link>
             </>
@@ -132,19 +126,7 @@ export default function Header({
           <div className="p-4 flex flex-col gap-4">
             {user ? (
               <>
-                <div className="flex items-center gap-3">
-                  <img
-                    src={
-                      user.user_metadata?.avatar_url || "/default-avatar.png"
-                    }
-                    alt="User Avatar"
-                    onError={(e) => {
-                      e.currentTarget.src = "/default-avatar.png"
-                    }}
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                  <span>{user.email}</span>
-                </div>
+                <span>سلام، {user.username || user.name}!</span>
                 <Link
                   href="/dashboard"
                   className="w-full bg-blue-600 text-white text-center py-2 rounded-md hover:bg-blue-700 transition"
@@ -166,30 +148,11 @@ export default function Header({
                 >
                   ثبت‌نام
                 </Link>
-                <hr className="my-2 border-gray-300" />
                 <Link href="/login" className="block py-2 px-4 text-gray-800">
                   ورود
                 </Link>
               </>
             )}
-            <hr className="my-2 border-gray-300" />
-            <Link
-              href="/how-it-works"
-              className="block py-2 px-4 text-gray-800"
-            >
-              چطور کار می‌کند
-            </Link>
-            <hr className="my-2 border-gray-300" />
-            <div className="flex items-center bg-white border border-gray-300 rounded-md overflow-hidden">
-              <input
-                type="text"
-                placeholder="جستجو..."
-                className="flex-1 px-3 py-2 text-right focus:outline-none"
-              />
-              <button className="px-3">
-                <Search className="w-5 h-5 text-gray-500" />
-              </button>
-            </div>
           </div>
         </div>
       )}

@@ -3,6 +3,8 @@
 import { useState } from "react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/context/AuthContext"
 
 export default function JoinPage() {
   // const [name, setName] = useState("")
@@ -15,15 +17,41 @@ export default function JoinPage() {
     username: "",
     password: "",
   })
+  const router = useRouter()
+  const { login } = useAuth()
   const [message, setMessage] = useState("")
+  // const handleChange = (e) => {
+  //   setFormData({ ...formData, [e.target.name]: e.target.value })
+  // }
+  // async function handleSubmit(e) {
+  //   e.preventDefault()
+  //   setMessage("") // پاک کردن پیام قبلی
+  //   try {
+  //     // ارسال اطلاعات به API
+  //     const res = await fetch("/api/signup", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(formData),
+  //     })
+
+  //     const data = await res.json()
+
+  //     if (!res.ok) throw new Error(data.error || "خطایی رخ داد")
+
+  //     setMessage(data.message) // پیام موفقیت
+  //     setFormData({ name: "", email: "", username: "", password: "" }) // پاک کردن فرم
+  //   } catch (err) {
+  //     setMessage(err.message)
+  //   }
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
-  async function handleSubmit(e) {
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    setMessage("") // پاک کردن پیام قبلی
+    setMessage("")
+
     try {
-      // ارسال اطلاعات به API
       const res = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -31,11 +59,17 @@ export default function JoinPage() {
       })
 
       const data = await res.json()
-
       if (!res.ok) throw new Error(data.error || "خطایی رخ داد")
 
-      setMessage(data.message) // پیام موفقیت
-      setFormData({ name: "", email: "", username: "", password: "" }) // پاک کردن فرم
+      // ذخیره اطلاعات کاربر در context
+      login({
+        name: formData.name,
+        username: formData.username,
+        email: formData.email,
+      })
+
+      // انتقال به صفحه اصلی
+      router.push("/")
     } catch (err) {
       setMessage(err.message)
     }
