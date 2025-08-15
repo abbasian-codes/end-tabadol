@@ -15,7 +15,7 @@ export default function JoinPage() {
     e.preventDefault()
 
     // ارسال اطلاعات به API
-    const res = await fetch("/api/join", {
+    const res = await fetch("/api/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, username, password }),
