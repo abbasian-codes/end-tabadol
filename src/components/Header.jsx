@@ -64,7 +64,7 @@ export default function Header({
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="text-red-500 hover:underline"
+                  className="text-danger-emphasis hover:underline"
                 >
                   خروج
                 </button>
