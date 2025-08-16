@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Logo from "./Logo"
-import { Search, Menu, X } from "lucide-react"
+import { Search, Menu, X, User2 } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 
 export default function Header({
@@ -14,9 +14,9 @@ export default function Header({
 }) {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const router = useRouter()
+  const [animateMenu, setAnimateMenu] = useState(false)
 
-  // فقط داخل کامپوننت
+  const router = useRouter()
   const { user, logout } = useAuth()
 
   useEffect(() => {
@@ -26,10 +26,23 @@ export default function Header({
     return () => window.removeEventListener("scroll", onScroll)
   }, [alwaysWhite])
 
+  // انیمیشن منو
+  useEffect(() => {
+    if (menuOpen) {
+      setTimeout(() => setAnimateMenu(true), 10)
+    } else {
+      setAnimateMenu(false)
+    }
+  }, [menuOpen])
+
   async function handleLogout() {
-    await logout() // فرض بر این که در context logout تعریف شده
+    await logout()
     router.push("/")
+    setMenuOpen(false)
   }
+
+  // بستن منو با کلیک بیرون
+  const closeMenu = () => setMenuOpen(false)
 
   return (
     <header
@@ -53,23 +66,90 @@ export default function Header({
 
         <div className="hidden md:flex items-center gap-4">
           {user ? (
-            <>
-              <div className="flex items-center gap-3">
-                <span>سلام، {user.username || user.name}!</span>
-                <Link
-                  href="/dashboard"
-                  className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            <div className="relative z-50">
+              {/* آیکون کاربر */}
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="p-2 rounded-full hover:bg-blue-500 transition-colors"
+              >
+                <User2 className="w-8 h-8 text-white" />
+              </button>
+
+              {/* overlay */}
+              {menuOpen && (
+                <div
+                  className={`fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity duration-300 ${
+                    animateMenu ? "opacity-100" : "opacity-0"
+                  }`}
+                  onClick={closeMenu}
+                />
+              )}
+
+              {/* منوی عمودی با انیمیشن */}
+              {menuOpen && (
+                <div
+                  className={`absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50 transform transition-all duration-300 ease-out
+                    ${
+                      animateMenu
+                        ? "opacity-100 scale-100 translate-y-0"
+                        : "opacity-0 scale-95 -translate-y-2"
+                    }`}
                 >
-                  داشبورد
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="text-danger-emphasis hover:underline"
-                >
-                  خروج
-                </button>
-              </div>
-            </>
+                  {/* نام کاربر */}
+                  <div className="px-4 py-3 text-gray-800 font-semibold border-b border-gray-300 text-lg">
+                    {user.username || user.name}
+                  </div>
+
+                  {/* لینک‌ها */}
+                  <ul className="flex flex-col text-lg">
+                    <li>
+                      <Link
+                        href="/dashboard"
+                        className="block px-4 py-3 text-gray-800 hover:bg-gray-100 rounded transition"
+                        onClick={closeMenu}
+                      >
+                        داشبورد
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/my-services"
+                        className="block px-4 py-3 text-gray-800 hover:bg-gray-100 rounded transition"
+                        onClick={closeMenu}
+                      >
+                        خدمات من
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/comments"
+                        className="block px-4 py-3 text-gray-800 hover:bg-gray-100 rounded transition"
+                        onClick={closeMenu}
+                      >
+                        کامنت‌های جدید
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/requests"
+                        className="block px-4 py-3 text-gray-800 hover:bg-gray-100 rounded transition"
+                        onClick={closeMenu}
+                      >
+                        درخواست‌ها
+                      </Link>
+                    </li>
+                    <li>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 rounded transition"
+                      >
+                        خروج
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
           ) : (
             <>
               <Link href="/login" className="px-3 py-1">
@@ -107,6 +187,7 @@ export default function Header({
           </div>
         </div>
 
+        {/* موبایل */}
         <div className="md:hidden">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
@@ -121,6 +202,7 @@ export default function Header({
         </div>
       </div>
 
+      {/* منوی موبایل */}
       {menuOpen && (
         <div className="bg-gray-100 md:hidden z-40 relative" dir="rtl">
           <div className="p-4 flex flex-col gap-4">
