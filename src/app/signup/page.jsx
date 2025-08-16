@@ -1,8 +1,7 @@
 "use client" // برای اینکه این کامپوننت Client باشد
 
 import { useState } from "react"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
+
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/context/AuthContext"
 
@@ -77,7 +76,6 @@ export default function JoinPage() {
 
   return (
     <div>
-      <Header />
       <main className="min-h-screen flex items-center justify-center p-6 bg-gray-50">
         <div className="max-w-md w-full bg-white p-8 rounded shadow space-y-4">
           <h1 className="text-2xl font-bold text-center">ثبت‌نام</h1>
@@ -129,7 +127,6 @@ export default function JoinPage() {
           <p>{message}</p>
         </div>
       </main>
-      <Footer />
     </div>
   )
 }
